@@ -37,13 +37,19 @@ def factorial(n: int) -> int:
 
 
 def fib_naive(n: int) -> int:
-    """n-е число Фибоначчи наивной рекурсией; увеличивает CALLS["fib_naive"].
+    """n-е число Фибоначчи наивной рекурсией.
 
-    Ожидаемая сложность: TODO (экспоненциальная — показать счётчиком вызовов).
+    Увеличивает CALLS["fib_naive"].
+    Время: O(2**n), дополнительная память: O(n).
     """
     CALLS["fib_naive"] += 1
-    # TODO: F(0)=0, F(1)=1, далее F(n)=F(n-1)+F(n-2)
-    raise NotImplementedError
+
+    if n == 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        return fib_naive(n - 1) + fib_naive(n - 2)
 
 
 def fib_memo(n: int, memo: dict[int, int] | None = None) -> int:
