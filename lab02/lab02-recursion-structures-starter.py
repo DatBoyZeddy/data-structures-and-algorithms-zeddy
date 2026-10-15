@@ -53,13 +53,20 @@ def fib_naive(n: int) -> int:
 
 
 def fib_memo(n: int, memo: dict[int, int] | None = None) -> int:
-    """n-е число Фибоначчи с мемоизацией; увеличивает CALLS["fib_memo"].
-
-    Ожидаемая сложность: TODO (линейная — сравнить счётчики в отчёте).
-    """
+    """Фибоначчи с мемоизацией. Время: O(n), память: O(n)."""
     CALLS["fib_memo"] += 1
-    # TODO: словарь memo передаётся по рекурсии; повторные подзадачи не пересчитываются
-    raise NotImplementedError
+
+    if memo is None:
+        memo = {}
+
+    if n == 0 or n == 1:
+        return n
+
+    if n in memo:
+        return memo[n]
+
+    memo[n] = fib_memo(n - 1, memo) + fib_memo(n - 2, memo)
+    return memo[n]
 
 
 def hanoi(n: int, src: str = "A", dst: str = "C", aux: str = "B") -> int:
