@@ -70,7 +70,7 @@ def fib_memo(n: int, memo: dict[int, int] | None = None) -> int:
 
 
 def hanoi(n: int, src: str = "A", dst: str = "C", aux: str = "B") -> int:
-    """Вернуть число перемещений n дисков из src в dst."""
+    """Вернуть число перемещений n дисков из src в dst. Время: O(2**n), память: O(n)."""
     if n == 0:
         return 0
 
@@ -86,11 +86,9 @@ def hanoi(n: int, src: str = "A", dst: str = "C", aux: str = "B") -> int:
 
 
 class DynamicArray:
-    """Динамический массив поверх «сырого» буфера фиксированной ёмкости.
+    """Динамический массив с ручным управлением ёмкостью.
 
     Инвариант: 0 <= self._size <= self._capacity.
-    Буфер имитируем списком фиксированной длины, заполненным None;
-    использовать list.append/insert для буфера запрещено.
     """
 
     INITIAL_CAPACITY = 4
@@ -98,7 +96,7 @@ class DynamicArray:
     def __init__(self) -> None:
         self._capacity = self.INITIAL_CAPACITY
         self._size = 0
-        self._buffer: list = [None] * self._capacity  # «сырая» память
+        self._buffer: list = [None] * self._capacity
 
     def __len__(self) -> int:
         return self._size
@@ -108,27 +106,37 @@ class DynamicArray:
         return self._capacity
 
     def _grow(self) -> None:
-        """Увеличить ёмкость в 2 раза и скопировать элементы в новый буфер."""
-        # TODO: выделить новый буфер размера 2 * capacity, перенести _size элементов
-        raise NotImplementedError
+        """Удвоить ёмкость. Время: O(n)."""
+        new_capacity = self._capacity * 2
+        new_buffer = [None] * new_capacity
+
+        for i in range(self._size):
+            new_buffer[i] = self._buffer[i]
+
+        self._buffer = new_buffer
+        self._capacity = new_capacity
 
     def append(self, value) -> None:
-        """Добавить элемент в конец; при size == capacity сначала вызвать _grow.
+        """Добавить элемент. Амортизированное время: O(1)."""
+        if self._size == self._capacity:
+            self._grow()
 
-        Амортизированная сложность: TODO (обосновать методом учёта в отчёте).
-        """
-        # TODO: рост при необходимости, запись в ячейку _buffer[_size], инкремент _size
-        raise NotImplementedError
+        self._buffer[self._size] = value
+        self._size += 1
 
     def get(self, index: int):
-        """Вернуть элемент по индексу 0 <= index < size; иначе IndexError."""
-        # TODO: проверка границ + чтение из буфера
-        raise NotImplementedError
+        """Прочитать элемент. Время: O(1)."""
+        if index < 0 or index >= self._size:
+            raise IndexError("Индекс вне границ массива")
+
+        return self._buffer[index]
 
     def set(self, index: int, value) -> None:
-        """Записать элемент по индексу 0 <= index < size; иначе IndexError."""
-        # TODO: проверка границ + запись в буфер
-        raise NotImplementedError
+        """Заменить элемент. Время: O(1)."""
+        if index < 0 or index >= self._size:
+            raise IndexError("Индекс вне границ массива")
+
+        self._buffer[index] = value
 
 
 # ---------------------------------------------------------------------------
