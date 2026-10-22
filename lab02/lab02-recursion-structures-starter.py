@@ -181,7 +181,7 @@ class Stack:
 
 
 class _Node:
-    """Узел двусвязного списка для Deque."""
+    """Узел двусвязного списка."""
 
     __slots__ = ("value", "prev", "next")
 
@@ -192,11 +192,7 @@ class _Node:
 
 
 class Deque:
-    """Дек (двусторонняя очередь) на базе двусвязного списка.
-
-    Все четыре операции концов должны стоить O(1) — без амортизации,
-    в отличие от вставки в начало динамического массива (см. отчёт).
-    """
+    """Дек на двусвязном списке. Все операции концов - O(1)."""
 
     def __init__(self) -> None:
         self._head: _Node | None = None
@@ -207,25 +203,60 @@ class Deque:
         return self._size
 
     def push_front(self, value) -> None:
-        """Добавить элемент в начало. Сложность: TODO."""
-        # TODO: создать узел, перевязать ссылки head (учесть пустой дек)
-        raise NotImplementedError
+        """Добавить элемент в начало. O(1)."""
+        node = _Node(value, next=self._head)
+
+        if self._head is None:
+            self._tail = node
+        else:
+            self._head.prev = node
+
+        self._head = node
+        self._size += 1
 
     def push_back(self, value) -> None:
-        """Добавить элемент в конец. Сложность: TODO."""
-        # TODO: симметрично push_front для tail
-        raise NotImplementedError
+        """Добавить элемент в конец. O(1)."""
+        node = _Node(value, prev=self._tail)
+
+        if self._tail is None:
+            self._head = node
+        else:
+            self._tail.next = node
+
+        self._tail = node
+        self._size += 1
 
     def pop_front(self):
-        """Извлечь элемент из начала; для пустого дека — IndexError."""
-        # TODO: учесть переход к пустому деку (tail тоже обнуляется)
-        raise NotImplementedError
+        """Удалить и вернуть первый элемент. O(1)."""
+        if self._head is None:
+            raise IndexError("Дек пуст")
+
+        value = self._head.value
+        self._head = self._head.next
+
+        if self._head is None:
+            self._tail = None
+        else:
+            self._head.prev = None
+
+        self._size -= 1
+        return value
 
     def pop_back(self):
-        """Извлечь элемент из конца; для пустого дека — IndexError."""
-        # TODO
-        raise NotImplementedError
+        """Удалить и вернуть последний элемент. O(1)."""
+        if self._tail is None:
+            raise IndexError("Дек пуст")
 
+        value = self._tail.value
+        self._tail = self._tail.prev
+
+        if self._tail is None:
+            self._head = None
+        else:
+            self._tail.next = None
+
+        self._size -= 1
+        return value
 
 # ---------------------------------------------------------------------------
 # 4. Репрезентативные тесты и инварианты (шаги 1–3 методики верификации)
