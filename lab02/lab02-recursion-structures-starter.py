@@ -27,10 +27,14 @@ CALLS = {"fib_naive": 0, "fib_memo": 0}  # счётчики рекурсивны
 
 def factorial(n: int) -> int:
     """Факториал n >= 0 рекурсивно. Ожидаемая сложность: Время: O(n), память: O(n)."""
-    if n == 0 or n == 1:
+    if n < 0:
+        raise ValueError("Факториал определён только для n >= 0")
+    elif n == 0 or n == 1:
         return 1
     else:
         return n * factorial(n - 1)
+    
+    
 
 # аргумент уменьшается на единицу, поэтому число вызовов растёт линейно.
 # Память тоже O(n): ожидающие результата вызовы хранятся в стеке.
@@ -77,7 +81,7 @@ def hanoi(n: int, src: str = "A", dst: str = "C", aux: str = "B") -> int:
     first = hanoi(n - 1, src, aux, dst)
     second = hanoi(n - 1, aux, dst, src)
 
-    return first + 1 + seconds
+    return first + 1 + second
 
 
 # ---------------------------------------------------------------------------
@@ -145,7 +149,7 @@ class DynamicArray:
 
 
 class Stack:
-    """Стек (LIFO) на базе DynamicArray."""
+    """Стек LIFO на базе DynamicArray."""
 
     def __init__(self) -> None:
         self._data = DynamicArray()
@@ -154,19 +158,26 @@ class Stack:
         return len(self._data)
 
     def push(self, value) -> None:
-        """Положить элемент на вершину. Амортизированная сложность: TODO."""
-        # TODO: делегировать DynamicArray.append
-        raise NotImplementedError
+        """Добавить на вершину. O(1) амортизированно."""
+        self._data.append(value)
 
     def pop(self):
-        """Снять элемент с вершины; для пустого стека — IndexError."""
-        # TODO: прочитать последний элемент, уменьшить размер
-        raise NotImplementedError
+        """Удалить и вернуть вершину. O(1)."""
+        if len(self._data) == 0:
+            raise IndexError("Стек пуст")
+
+        index = len(self._data) - 1
+        value = self._data.get(index)
+        self._data.set(index, None)
+        self._data._size -= 1
+        return value
 
     def peek(self):
-        """Вернуть вершину без удаления; для пустого стека — IndexError."""
-        # TODO
-        raise NotImplementedError
+        """Прочитать вершину без удаления. O(1)."""
+        if len(self._data) == 0:
+            raise IndexError("Стек пуст")
+
+        return self._data.get(len(self._data) - 1)
 
 
 class _Node:
@@ -174,7 +185,7 @@ class _Node:
 
     __slots__ = ("value", "prev", "next")
 
-    def __init__(self, value, prev=None, next=None) -> None:  # noqa: A002
+    def __init__(self, value, prev=None, next=None) -> None:
         self.value = value
         self.prev = prev
         self.next = next
