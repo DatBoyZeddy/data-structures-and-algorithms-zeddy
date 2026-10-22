@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 import collections
 import math
 import random
@@ -358,13 +359,22 @@ def inserts_front_deque(n: int) -> None:
         d.appendleft(i)
 
 
+def inserts_front_own_deque(n: int) -> None:
+    """n вставок в начало собственного Deque."""
+    d = Deque()
+    for i in range(n):
+        d.push_front(i)
+
+
 def run_benchmarks(seed: int) -> None:
     """Средняя стоимость append и сравнение вставки в начало list/deque."""
     rng = random.Random(seed)
     _ = rng.random()  # данные варианта фиксируются seed (см. reproducibility.md)
     print("\nСредняя стоимость append (DynamicArray), демонстрация амортизированной O(1):")
+    append_costs = []
     for n in SIZES:
         t = bench(appends_dynamic_array, n)
+        append_costs.append(t / n)
         print(f"  n={n:>7}  всего t={t:.6f} c  на операцию t/n={t / n:.3e} c")
     print("\nВставка в начало: list.insert(0, x) против deque.appendleft:")
     for n in SIZES:
@@ -373,8 +383,24 @@ def run_benchmarks(seed: int) -> None:
         t_list = bench(inserts_front_list, n)
         t_deque = bench(inserts_front_deque, n)
         print(f"  n={n:>7}  list={t_list:.6f} c  deque={t_deque:.6f} c")
-    # TODO: снять аналогичные замеры для push_front своего Deque;
-    # TODO: построить график t/n от n для append и включить его в отчёт;
+    print("\nВставка в начало собственного Deque:")
+    for n in SIZES:
+        t = bench(inserts_front_own_deque, n)
+        print(f"  n={n:>7}  свой Deque={t:.6f} c  t/n={t / n:.3e} c")
+
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
+    ax.loglog(SIZES, append_costs, marker="o")
+    ax.set_xlabel("Number of appends, n")
+    ax.set_ylabel("Median total time / n, seconds")
+    ax.set_title("DynamicArray: amortized append cost")
+    ax.grid(True, which="both", alpha=0.3)
+    fig.tight_layout()
+    plot_path = Path(__file__).resolve().with_name("append_cost.png")
+    fig.savefig(plot_path, dpi=160)
+    plt.close(fig)
+    print(f"\nГрафик сохранён: {plot_path}")
     # TODO: провести амортизированный анализ push_back методом учёта (в отчёте).
 
 
